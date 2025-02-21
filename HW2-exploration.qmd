@@ -1,0 +1,61 @@
+---
+title: "Assignment #2 (HW #2)"
+subtitle: "Part 2: Data Exploration for HW4"
+date: 2025-02-20
+author: "Kaiju Morquecho"
+toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Load libraries
+```{r message=FALSE}
+library(tidyverse)
+library(readxl)
+library(here)
+library(ggplot2)
+library(janitor)
+```
+
+# Load main df
+```{r}
+energy_df <- read_csv(here("data","nuclear_simple.csv"))
+```
+
+# Wrangle, Yehaw!
+```{r}
+energy_df <- energy_df %>%
+  
+  clean_names(case = "lower_camel") %>%
+    mutate(across(-country, as.numeric)) %>%
+  rename(natural_gas = naturalGas) %>%
+  rename(nuclear_energy = nuclearEnergy) %>%
+  rename(renewables = renewAbles) %>%
+  rename(hydroelectric = hydroElectric) %>%
+  pivot_longer(cols = -country, names_to = "energy_type", values_to = "value") %>%
+  drop_na()
+```
+
+
+```{r}
+total_use <- energy_df %>%
+  filter(str_detect(country,"Total")) %>%
+  filter(str_detect(energy_type, "total"))
+
+```
+
+# Explore 
+```{r}
+total_plot <- ggplot(total_use, aes(x = country, y = value, fill = energy_type)) +
+  geom_col(position = "dodge") +  # Dodged bars to compare energy types
+  theme_minimal() +
+  labs(title = "Energy Consumption by Region and Type",
+       x = "Region",
+       y = "Energy Production (Exajoules)",
+       fill = "Energy Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+total_plot
+  
+```
+
