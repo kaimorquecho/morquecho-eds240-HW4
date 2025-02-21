@@ -3,6 +3,9 @@ title: "Assignment #2 (HW #2)"
 subtitle: "Part 2: Data Exploration for HW4"
 date: 2025-02-20
 author: "Kaiju Morquecho"
+format:
+  html: 
+    embed-resources: true
 toc: true
 editor_options: 
   chunk_output_type: console
@@ -18,7 +21,7 @@ library(janitor)
 ```
 
 # Load main df
-```{r}
+```{r message=FALSE}
 energy_df <- read_csv(here("data","nuclear_simple.csv"))
 ```
 
@@ -52,7 +55,7 @@ nuclear_use <- energy_df %>%
   arrange(value)
 
 # filter to energy types by region (not totals)
-country_use <- energy_df %>%
+region_use <- energy_df %>%
   filter(str_detect(country,"Total")) %>%
   filter(!str_detect(energy_type, "total"))
 
@@ -91,16 +94,30 @@ nuclear_plot
 ```
 
 ```{r}
-countries_plot <- ggplot(country_use, aes(x = country, y = value, fill = energy_type)) +
+# look at regional energy use 
+regions_plot <- ggplot(region_use, aes(x = country, y = value, fill = energy_type)) +
   geom_bar(stat = "identity") +  
   theme_minimal() +
-  labs(title = "Proportion of Energy Consumption by Type, per Country, 2022",
-       x = "Country",
+  labs(title = "Proportion of Energy Consumption by Type, per Region, 2022",
+       x = "Region",
        y = "Energy Consumption (Exajoules)",
        fill = "Energy Type") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   coord_flip()
 
-countries_plot
+regions_plot
 ```
+
+1. What have you learned about your data? Have any potentially interesting patterns emerged?
+
+I was surprised to see that the North American region is NOT the highest consumer of energy! I expected it to be due to the U.S's high energy consumption. I was also surprised to see that China doesn't consume more nuclear energy than the data shows. It is also very clear that the main political and economic powers (China and the U.S) are also the main energy consumers, significantly more than any other country. This quickly gave me ideas for what kind of data/ what country's data I need to look for to compliment what I have found so far. 
+
+2. In HW #1, you outlined some questions that you wanted to answer using these data. Have you made any strides towards answering those questions? If yes, how so? If no, what next steps do you need to take (e.g. I need to create X plot type, I still need to track down Y data, I need to restructure existing data so that you can visualize it in Z ways, etc.)?
+
+I have made some strides toward answering simple questions around nuclear energy, but there is much more to do still. I need to track down other type of information about nuclear energy. I was initially working with a very small data set about nuclear power plant permit applications in the U.S. While I still think that dataset is relevant, I see that there are many, many factors that make up the true cost of nuclear energy (nuclear accidents included). I imagine these factors being presented in clever ways in my infographic by using nuclear power plant- related images and glueing them together! As you will see, my data exploration is of a data set that I had not found at the time of submitting HW1. This is because I have found more robust ones that the smaller data sets can compliment, rather than the other way around. For example, I also found a data set that counts the amount of nuclear power facilities near Native American reservations.  
+
+3. What challenges do you foresee encountering with your data? These can be data wrangling and / or visualization challenges.
+
+I think the biggest challenge for my infographic will be to find a way to make all the factors that make up my research question come together cohesively. I imagine perhaps creating a type of "roadmap" that takes the reader through the different pieces of information (power plants near reservations, permit applications, start-up costs etc). I will need these to come together to tell one story and to do so while making it easy for the reader to follow and understand. It is exciting to think about all the possibilities! 
+
 
