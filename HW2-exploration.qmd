@@ -23,13 +23,13 @@ energy_df <- read_csv(here("data","nuclear_simple.csv"))
 ```
 
 # Wrangle, Yehaw!
-```{r}
+```{r warning=FALSE}
 energy_df <- energy_df %>%
   
   clean_names(case = "lower_camel") %>%
     mutate(across(-country, as.numeric)) %>%
   rename(natural_gas = naturalGas) %>%
-  rename(nuclear_energy = nuclearEnergy) %>%
+  rename(nuclear = nuclearEnergy) %>%
   rename(renewables = renewAbles) %>%
   rename(hydroelectric = hydroElectric) %>%
   pivot_longer(cols = -country, names_to = "energy_type", values_to = "value") %>%
@@ -38,24 +38,69 @@ energy_df <- energy_df %>%
 
 
 ```{r}
+
+# filter to total energy use by region
 total_use <- energy_df %>%
   filter(str_detect(country,"Total")) %>%
   filter(str_detect(energy_type, "total"))
+
+
+# filter to nuclear energy use across countries
+nuclear_use <- energy_df %>%
+  filter(str_detect(energy_type, "nuclear")) %>%
+  filter(!str_detect(country,"Total")) %>%
+  arrange(value)
+
+# filter to energy types by region (not totals)
+country_use <- energy_df %>%
+  filter(str_detect(country,"Total")) %>%
+  filter(!str_detect(energy_type, "total"))
+
 
 ```
 
 # Explore 
 ```{r}
+# look at total energy consumption by region of the world
 total_plot <- ggplot(total_use, aes(x = country, y = value, fill = energy_type)) +
-  geom_col(position = "dodge") +  # Dodged bars to compare energy types
+  geom_col(position = "dodge") +  
   theme_minimal() +
-  labs(title = "Energy Consumption by Region and Type",
+  labs(title = "Energy Consumption by Region and Type, 2022",
        x = "Region",
-       y = "Energy Production (Exajoules)",
-       fill = "Energy Type") +
+       y = "Energy Consumption (Exajoules)",
+       fill = "") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 total_plot
   
+```
+
+```{r}
+# look at country-specific nuclear energy use
+nuclear_plot <- ggplot(nuclear_use, aes(x = country, y = value, fill = energy_type)) +
+  geom_col(position = "dodge") +  
+  theme_minimal() +
+  labs(title = "Nuclear Energy Consumption by Country, 2022",
+       x = "Country",
+       y = "Nuclear Energy Consumption (Exajoules)",
+       fill = "") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+nuclear_plot
+```
+
+```{r}
+countries_plot <- ggplot(country_use, aes(x = country, y = value, fill = energy_type)) +
+  geom_bar(stat = "identity") +  
+  theme_minimal() +
+  labs(title = "Proportion of Energy Consumption by Type, per Country, 2022",
+       x = "Country",
+       y = "Energy Consumption (Exajoules)",
+       fill = "Energy Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_flip()
+
+countries_plot
 ```
 
