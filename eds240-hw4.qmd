@@ -14,6 +14,7 @@ library(here)
 library(dplyr) 
 library(ggplot2)
 library(janitor)
+library(png)
 library(jpeg)
 library(patchwork)
 library(scico)
@@ -66,11 +67,26 @@ chernobyl_exposure <- chernobyl_exposure %>%
 
 # find average absorbed doses at km intervals
 km_intervals <- chernobyl_exposure %>%
+  
   filter(distance_from_ch_npp_km %in% c(5,10, 20, 30, 50, 60)) %>%
+  
   arrange(desc(absorbed_dose_rate_micro_gray_h)) %>%
+  
   group_by(distance_from_ch_npp_km) %>%
+  
   slice_head(n = 1) %>%
+  
+  filter(!distance_from_ch_npp_km == 20) %>%
+  
+  mutate(comparison = paste0(  # assuming 1 chest xray = 0.1 mGy
+    
+    # "Distance: ", distance_from_ch_npp_km, " km from plant \n ", 
+    "PEAK RADIATION DOSE PER HR: ", absorbed_dose_rate_micro_gray_h, "MGY",
+    "\nOR", absorbed_dose_rate_micro_gray_h/0.1, "CHEST X-RAYS PER HR", sep = " ")) %>% 
   ungroup()
+
+
+km_intervals$location <-c(-0.3,-0.007,-0.007,-0.007)
 
 ```
 
@@ -221,13 +237,18 @@ timeline
 
 ```
 
-# Create exposure data viz
-```{r fig.height= 5, fig.width= 12}
-# save power plant image path 
-path <- here("samples", "plant.png")
+# Create raster grobs 
+```{r}
+# save power plant image path + warning sign path
+plant_path <- here("samples", "plant.png")
 
-# read as JPEG
-plant <- readJPEG(path, native = FALSE)
+warning_path <- here("samples","warning.png")
+
+
+# read as JPEG and as PNG
+plant <- readJPEG(plant_path, native = FALSE)
+
+warning <- readPNG(warning_path, native = FALSE)
 
 # turn to raster grob
 plant_grob <- rasterGrob(plant,
@@ -237,8 +258,19 @@ plant_grob <- rasterGrob(plant,
                          just = c("left", "center")) 
                     
 
+warning_grob <- rasterGrob(warning,
+                         width = unit(1, "cm"), 
+                         x = unit(0, "npc"),  
+                         y = unit(0, "npc"), 
+                         just = c("left", "center")) 
+                    
+```
+
+
+# Create Exposure Data Viz
+```{r}
 # make main plot
-exposure <- ggplot(chernobyl_exposure, aes(
+exposure<- ggplot(chernobyl_exposure, aes(
   y = 0.5,  
   x = distance_from_ch_npp_km,
   fill = absorbed_dose_rate_micro_gray_h
@@ -246,7 +278,7 @@ exposure <- ggplot(chernobyl_exposure, aes(
   
   with_outer_glow(
     
-    geom_tile(width = 7.5, height = 0.5, color = "white", show.legend = FALSE),
+    geom_tile(width = 7.5, height = 0.7, color = "white", show.legend = FALSE),
                   sigma = 2,
                   expand = 4,
                   colour = "springgreen"
@@ -267,18 +299,11 @@ exposure <- ggplot(chernobyl_exposure, aes(
   minor_breaks = seq(0, 60, by = 7.5)
   ) +
 
-    
-  # guides(fill = guide_colorbar(
-  #   barwidth = 0.5,
-  #   barheight = 10,
-  #   reverse = TRUE
-  # )) +
-    
   labs(
     
-    title = "RADIATION EXPOSURE BY PROXIMITY TO CHERNOBYL NUCLEAR POWER PLANT\n(MEASURED JANUARY 1987 TO JUNE 1987)",
+    title = "RADIATION EXPOSURE BY PROXIMITY TO CHERNOBYL NUCLEAR POWER PLANT",
     
-    subtitle = "Dangerous levels of radiation reached even those who were 40 km(+) away from the Chernobyl Power Plant",
+    subtitle = "MEASURED JANUARY 1987 TO JUNE 1987",
     
     x = "Distance from Chernobyl NPP (km)",
     
@@ -297,17 +322,18 @@ exposure <- ggplot(chernobyl_exposure, aes(
     axis.text.x = element_text(color = "white", size = 20),
     axis.title.x = element_text(color = "white", size = 18),
     axis.line = element_line(color = "white", linetype = "longdash"),
+    plot.title.position = "plot",
     
     plot.title = element_text(
       color = "springgreen", 
       size = 30, 
       family = "ko",
-      margin = margin(r = 10, unit = "pt")
+      margin = margin(r = 20, l = 0, unit = "pt")
     ),
     
     plot.subtitle = element_text(
       color = "white", 
-      size = 15, 
+      size = 23, 
       hjust = 0.5,
       margin = margin(b = 20, unit = "pt")
     ),
@@ -316,13 +342,13 @@ exposure <- ggplot(chernobyl_exposure, aes(
     
   ) +
   
-  coord_cartesian(clip = "off", ylim = c(-1, 1), xlim = c(0,65))
+  coord_cartesian(clip = "off", ylim = c(-1, 1.3), xlim = c(0,65))
 
 exposure
 ```
   
 ```{r}
-exposure <- exposure + 
+exposure_annotated <- exposure + 
   
   annotation_custom(  
     
@@ -337,7 +363,7 @@ exposure <- exposure +
   geom_segment(
     aes(
     x = 2.2, xend = 63, y = 0.5, yend = 0.5),  
-    size = 10, 
+    size = 11, 
     color = "gray30", 
     lineend = "square"
     
@@ -348,27 +374,124 @@ exposure <- exposure +
     aes(x = 2.2, xend = 63, y = 0.5, yend = 0.5),
     linetype = "dashed",
     color = "gold2",
-    size = 1
+    size = 1.3
     
   ) +
   
   geom_segment(
-    
-    aes(x = 1.25, xend = 63.75, y = 0, yend = 0),
-    linetype = "solid",
-    color = "white",
-    size = 1,
-    
-  ) + 
-  geom_label(aes(
+  data = km_intervals,
+  aes(
     x = distance_from_ch_npp_km - 3.75,
-    y = 0,
-    label = distance_from_ch_npp_km
-  ), color = "white")
-
+    xend = distance_from_ch_npp_km - 3.75,
+    y = location,           
+    yend = 0.2
+  ),
+  arrow = arrow(type = "closed",
+                angle = 0.2),
   
+  color = "springgreen",
+  size = 0.7
+) +
+    
+    geom_text(data = km_intervals, aes(
+    x = distance_from_ch_npp_km - 4,
+    y =  location,
+    label = comparison
+  ), 
+  color = "white",
+  size = 3,
+  nudge_x = 1,
+  inherit.aes = FALSE,
+  family = "ss") +
+  
+  with_outer_glow(
+    
+    annotation_custom(  # warning sign for 5km mark
+    
+    warning_grob,
+    xmin = km_intervals$distance_from_ch_npp_km[1] - 4,  
+    xmax = km_intervals$distance_from_ch_npp_km[1] - 4,   
+    ymin = 0.5,  
+    ymax = 0.7
+  ),
+  
+  sigma = 2,
+  expand = 2, 
+  colour = "springgreen"
+  ) +
+  
+  with_outer_glow(
+    
+    annotation_custom(  # warning sign for 10km mark
+    
+    warning_grob,
+    xmin = km_intervals$distance_from_ch_npp_km[2] - 4,  
+    xmax = km_intervals$distance_from_ch_npp_km[2] - 4,   
+    ymin = 0.5,  
+    ymax = 0.7
+    
+  ),
 
-exposure
+   sigma = 2,
+  expand = 2, 
+  colour = "springgreen"
+  )+
+  
+  with_outer_glow(
+    
+    annotation_custom(  # warning sign for 30km mark
+    
+    warning_grob,
+    xmin = km_intervals$distance_from_ch_npp_km[3] - 4,  
+    xmax = km_intervals$distance_from_ch_npp_km[3] - 4,   
+    ymin = 0.5,  
+    ymax = 0.7
+    
+  ),
+  
+   sigma = 2,
+  expand = 2, 
+  colour = "springgreen"
+  )+
+  
+   with_outer_glow( 
+     
+    annotation_custom(  # warning sign for 60km mark
+    warning_grob,
+    xmin = km_intervals$distance_from_ch_npp_km[4] - 4,  
+    xmax = km_intervals$distance_from_ch_npp_km[4] - 4,   
+    ymin = 0.5,  
+    ymax = 0.7
+    
+  ),
+  
+   sigma = 2,
+  expand = 2, 
+  colour = "springgreen"
+   ) +
+  
+  geom_segment(
+  aes(x = 1, xend = 64, y = 1, yend = 1),
+  color = "white",
+  linewidth = 0.2
+) + # km line
+  
+  geom_segment(
+  aes(x = locations, xend = locations, y = 0, yend = 1),  # Draw a vertical line at each km_measurement
+  color = "white",
+  linewidth = 0.2
+) + 
+  
+  geom_text(data = km_intervals,  # km markers
+  aes(x = distance_from_ch_npp_km - 3.75, y = 1.05, 
+  label = paste0(distance_from_ch_npp_km, "KM", sep = " ")), 
+  color = "white", 
+  family = "ss",
+  size = 5)+
+
+  theme(text = element_text(family = "ss")) 
+
+exposure_annotated
 ```
 
 # Create water contamination data viz 
