@@ -1,0 +1,408 @@
+---
+title: "Assignment 3 (HW #3)"
+subtitle: "Nuclear Energy Infographic"
+description: "Assigned Tue 02/11/2025 | Due Tue 02/25/2025"
+author: "Kaiju Morquecho"
+toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r message=FALSE}
+# Load libraries 
+library(here)
+library(dplyr) 
+library(ggplot2)
+library(janitor)
+library(jpeg)
+library(patchwork)
+library(scico)
+library(tidyverse)
+library(htmltools)
+library(ggrepel)
+library(grid)
+library(scales)
+library(stringr)
+library(lubridate)
+library(ggimage)
+library(ggfx)
+library(scales)
+library(ggtext)
+library(sysfonts)
+library(magick)
+library(showtext)
+```
+
+## Enable showtext_auto()
+```{r}
+# enable showtext 
+showtext_auto()
+```
+
+## Load fonts
+
+```{r}
+font_add_google(name = "Keania One", family = "ko")
+font_add_google(name = "Smooch Sans", family = "ss")
+```
+
+# Load data
+```{r}
+chernobyl_exposure <-read.csv(here("data","chernobyl_exposure_distance.csv")) %>%
+  clean_names()
+
+chernobyl_water <- read.csv(here("data","chernobyl_water_chem.csv")) %>%
+  clean_names()
+
+nuclear_accidents <- read.csv(here("data","nuclear_accidents.csv") ) %>%
+  clean_names() 
+```
+
+# Wrangle Chernobyl exposure rate data 
+```{r}
+# drop NA's 
+chernobyl_exposure <- chernobyl_exposure %>%
+  filter(!is.na(exposure_dose_rate_m_r_h)) 
+```
+
+# Wrangle nuclear accidents data
+```{r}
+# filter to INES levels of interest 
+nuclear_accidents <- nuclear_accidents %>%
+  filter(ines_level >= 4) %>% # filter to accidents of INES level 4-7
+  filter(!is.na(ines_level)) %>%  # drop if ines_level = NA
+  mutate(description = paste(incident, location, sep = ",\n "))
+
+
+# make "date" col into date object, set "orders" to all possible date formats in the df
+nuclear_accidents$date <- year(as.Date(parse_date_time(nuclear_accidents$date, orders =  c("m/d/Y","d/m/Y"))))
+
+
+```
+
+```{r}
+# add nuclear symbol to df
+nuclear_accidents$image <- rep(c(here("samples","nuclear_symbol.png")), 10)
+
+# name background image object
+
+background <- "https://miro.medium.com/v2/resize:fit:4800/format:webp/1*hL391IqaaorQv-c5-a5w-w.jpeg"
+
+# heights for milestones.
+nuclear_accidents$positions <- c(0.13, -0.1, 0.09, -0.05, .05, -.1, .09, -.05, .05, -.05) 
+
+# set the directions for each accident, aka above and below timeline
+nuclear_accidents$directions <- c(1, -1) 
+
+```
+
+# Create timeline of nuclear accidents
+
+```{r}
+
+timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = description)) +
+  theme_classic() +
+  
+  # horizontal timeline
+  with_outer_glow(
+    
+    geom_hline(yintercept = 0,
+             color = "springgreen",
+             alpha = 0.9,
+             linejoin = "round",
+             linewidth = 3,
+             show.legend = FALSE),
+    
+    
+    colour = "springgreen",
+    sigma = 2,
+    expand = 1) +
+  
+  # lines conencting accident to timeline
+  with_outer_glow(
+    
+    
+    geom_segment(data = nuclear_accidents, aes(y = positions,
+                                             yend = 0,
+                                             xend = date),
+                 linewidth = 1,
+                 color = "springgreen"),
+    
+    
+    colour = "springgreen",
+    sigma = 2,
+    expand = 0.5) +
+  
+  # year labels on timeline
+  geom_label(aes(x = date, 
+                label = date,
+                y = 0),
+             fill = "black",
+             color = "white",
+             family = "ss",
+             size = 7,
+             show.legend = FALSE) +
+
+  geom_point(aes(y = positions), size = 1) +
+  
+  # imagine to replace data points
+  # geom_image(image = nuclear_accidents$image[1],
+  #            size = 0.4,
+  #            nudge_x = -0.025) +
+  
+  # text boxes that are html friendly, accident description
+  geom_textbox(aes(label = str_wrap(
+    
+    paste0("<b><span style='color:black;'>",incident,".</b>", tags$br(), location))),
+    fill = "white",
+    color = "black",
+    size = 5,
+    
+    family = "ss",
+    width = 0.2,
+    halign = 0.5,
+    valign = 0.5,
+    show.legend = TRUE
+              ) +
+  
+  labs(title = "AT A GLANCE: HISTORY OF NUCLEAR ACCIDENTS",
+       subtitle = "The International Nuclear and Radiological Event Scale (INES) is a logarithmic scale with 7 levels. Levels 4-7 are reserved for high-impact accidents") +
+  
+  
+  theme(
+        plot.title = element_text(family = "ko",
+                                  margin = margin(t = 0, r = 0, b = 10 , l = 0, unit = "pt"),
+                                  size = 30,
+                                  color = "springgreen"),
+        plot.subtitle = element_text(family = "ss",
+                                     size = 20,
+                                     color = "white",
+                                     margin = margin(t = 0, r = 0, b = 30 , l = 0, unit = "pt")),
+        plot.title.position = "plot",
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.line.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.line.x = element_blank(),
+        legend.text = element_text(color = "black"),
+        # legend.direction = "horizontal",
+        # legend.position = "bottom",
+        panel.background = element_rect(fill = "black"),
+        plot.background = element_rect(fill = "black"),
+        plot.margin = margin(t = 70, r = 100, b = 70, l = 100, unit = "pt")) +
+  
+  
+   coord_cartesian(clip = "off")
+
+
+# timeline <- ggbackground(timeline, background, alpha = 0.1)
+
+ggsave("timeline.png",
+       plot = timeline,
+       device = "png",
+       width = 10, 
+       height = 12,
+       units = "cm",
+       dpi = 300
+       )
+
+timeline 
+
+```
+
+# Create exposure data viz
+```{r fig.height= 5, fig.width= 12}
+# save power plant image path 
+path <- here("samples", "plant.png")
+
+# read as JPEG
+plant <- readJPEG(path, native = FALSE)
+
+# turn to raster grob
+plant_grob <- rasterGrob(plant,
+                         width = unit(3, "cm"), 
+                         x = unit(0, "npc"),  
+                         y = unit(0, "npc"), 
+                         just = c("left", "center")) 
+                    
+
+# make main plot
+exposure <- ggplot(chernobyl_exposure, aes(
+  y = 0.5,  
+  x = distance_from_ch_npp_km,
+  fill = absorbed_dose_rate_micro_gray_h
+)) +
+  
+  with_outer_glow(
+    
+    geom_tile(width = 7.5, height = 0.5, color = "white", show.legend = FALSE),
+                  sigma = 2,
+                  expand = 4,
+                  colour = "springgreen"
+    
+                  ) +  
+    
+  scale_fill_gradientn(
+    
+    colours = c("springgreen", "deeppink", "firebrick2"),
+    name = "Absorbed Dose Rate\n(mGy/h)",
+    transform = "sqrt"
+    
+  ) +
+  
+ scale_x_continuous(
+   breaks = seq(0, 60, by = 15),
+  labels = paste0(seq(0, 60, by = 15), " km"),
+  minor_breaks = seq(0, 60, by = 7.5)
+  ) +
+
+    
+  # guides(fill = guide_colorbar(
+  #   barwidth = 0.5,
+  #   barheight = 10,
+  #   reverse = TRUE
+  # )) +
+    
+  labs(
+    
+    title = "RADIATION EXPOSURE BY PROXIMITY TO CHERNOBYL NUCLEAR POWER PLANT\n(MEASURED JANUARY 1987 TO JUNE 1987)",
+    
+    subtitle = "Dangerous levels of radiation reached even those who were 40 km(+) away from the Chernobyl Power Plant",
+    
+    x = "Distance from Chernobyl NPP (km)",
+    
+    y = NULL
+  ) +
+  
+  theme_minimal(base_family = "ss") +
+  
+  theme(
+    plot.background = element_rect(fill = "black", color = NA),
+    panel.background = element_rect(fill = "black", color = NA),
+    panel.grid = element_blank(),
+    axis.ticks.y = element_line(color = "white"),
+    axis.title.y = element_text(color = "white"),
+    axis.ticks.x = element_line(color = "white",linewidth = 1),
+    axis.text.x = element_text(color = "white", size = 20),
+    axis.title.x = element_text(color = "white", size = 18),
+    axis.line = element_line(color = "white", linetype = "longdash"),
+    
+    plot.title = element_text(
+      color = "springgreen", 
+      size = 30, 
+      family = "ko",
+      margin = margin(r = 10, unit = "pt")
+    ),
+    
+    plot.subtitle = element_text(
+      color = "white", 
+      size = 15, 
+      hjust = 0.5,
+      margin = margin(b = 20, unit = "pt")
+    ),
+    
+    plot.margin = margin(t = 30, r = 50, b = 100, l = 50, unit = "pt")
+    
+  ) +
+  
+  coord_cartesian(clip = "off", ylim = c(-1, 1), xlim = c(0,60))
+
+exposure
+```
+  
+```{r}
+exposure <- exposure + 
+  
+  annotation_custom(  
+    
+    plant_grob,
+    xmin = -6,  
+    xmax = 5,   
+    ymin = 0.5,  
+    ymax = 1
+    
+  ) +
+  
+  geom_segment(
+    aes(
+    x = 2.2, xend = 63, y = 0.5, yend = 0.5),  
+    size = 10, 
+    color = "gray30", 
+    lineend = "square"
+    
+  ) +
+  
+  geom_segment(
+    
+    aes(x = 2.2, xend = 63, y = 0.5, yend = 0.5),
+    linetype = "dashed",
+    color = "gold2",
+    size = 1
+    
+  ) +
+  
+  geom_segment(
+    
+    aes(x = 7.5, xend = 60, y = 0, yend = 0),
+    linetype = "solid",
+    color = "white",
+    size = 1,
+    
+  )
+  
+
+exposure
+```
+
+# Create water contamination data viz 
+```{r}
+
+water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = x137cs_deposition_k_bq_m2)) +
+  
+  # trend line with glow
+  with_outer_glow(
+    geom_smooth(method = "loess", se = FALSE, color = "deeppink", size = 1.5),
+    colour = "deeppink",
+    sigma = 5,
+    expand = 1
+  ) +
+  
+    # lakes as points
+  with_outer_glow(
+    geom_point(size = 2, color = "white"),
+    colour = "deeppink",
+    sigma = 3,
+    expand = 3
+  ) +
+
+  scale_y_continuous(trans = "sqrt") +
+  
+  # Labels
+  labs(
+    title = "Radioactive Cesium-137 Deposition",
+    subtitle = "Distance from Chernobyl NPP vs Deposition (kBq/m²)",
+    x = "Distance from Chernobyl NPP (km)",
+    y = "Cs-137 Deposition (kBq/m²)"
+  ) +
+
+  theme(
+    plot.background = element_rect(fill = "black", color = NA),
+    panel.background = element_rect(fill = "black", color = NA),
+    panel.grid = element_line(colour = "springgreen",
+                              linewidth = 0.1),
+    
+    axis.title = element_text(color = "white", size = 14, family = "ss"),
+    axis.text = element_text(color = "white", size = 12, family = "ss"),
+    
+    plot.title = element_text(color = "springgreen", size = 20, family = "ko"),
+    plot.subtitle = element_text(color = "white", size = 14, family = "ss"),
+    
+    plot.margin = margin(1, 1, 1, 1, "cm")
+  )
+
+ggsave("chernobyl_water_glow.png", plot = water, width = 10, height = 6, dpi = 300)
+
+water
+```

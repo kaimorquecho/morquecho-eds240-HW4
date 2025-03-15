@@ -51,8 +51,7 @@ total_use <- energy_df %>%
 # filter to nuclear energy use across countries
 nuclear_use <- energy_df %>%
   filter(str_detect(energy_type, "nuclear")) %>%
-  filter(!str_detect(country,"Total")) %>%
-  arrange(value)
+  filter(!str_detect(country,"Total"))
 
 # filter to energy types by region (not totals)
 region_use <- energy_df %>%
@@ -80,7 +79,7 @@ total_plot
 
 ```{r}
 # look at country-specific nuclear energy use
-nuclear_plot <- ggplot(nuclear_use, aes(x = country, y = value, fill = energy_type)) +
+nuclear_plot <- ggplot(nuclear_use, aes(x = reorder(country,value), y = value, fill = energy_type)) +
   geom_col(position = "dodge") +  
   theme_minimal() +
   labs(title = "Nuclear Energy Consumption by Country, 2022",
@@ -120,4 +119,8 @@ I have made some strides toward answering simple questions around nuclear energy
 
 I think the biggest challenge for my infographic will be to find a way to make all the factors that make up my research question come together cohesively. I imagine perhaps creating a type of "roadmap" that takes the reader through the different pieces of information (power plants near reservations, permit applications, start-up costs etc). I will need these to come together to tell one story and to do so while making it easy for the reader to follow and understand. It is exciting to think about all the possibilities! 
 
+
+#### Human cost
+#### Monetary cost
+#### 
 
