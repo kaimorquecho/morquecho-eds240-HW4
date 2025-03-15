@@ -63,6 +63,15 @@ nuclear_accidents <- read.csv(here("data","nuclear_accidents.csv") ) %>%
 # drop NA's 
 chernobyl_exposure <- chernobyl_exposure %>%
   filter(!is.na(exposure_dose_rate_m_r_h)) 
+
+# find average absorbed doses at km intervals
+km_intervals <- chernobyl_exposure %>%
+  filter(distance_from_ch_npp_km %in% c(5,10, 20, 30, 50, 60)) %>%
+  arrange(desc(absorbed_dose_rate_micro_gray_h)) %>%
+  group_by(distance_from_ch_npp_km) %>%
+  slice_head(n = 1) %>%
+  ungroup()
+
 ```
 
 # Wrangle nuclear accidents data
@@ -307,7 +316,7 @@ exposure <- ggplot(chernobyl_exposure, aes(
     
   ) +
   
-  coord_cartesian(clip = "off", ylim = c(-1, 1), xlim = c(0,60))
+  coord_cartesian(clip = "off", ylim = c(-1, 1), xlim = c(0,65))
 
 exposure
 ```
@@ -345,12 +354,18 @@ exposure <- exposure +
   
   geom_segment(
     
-    aes(x = 7.5, xend = 60, y = 0, yend = 0),
+    aes(x = 1.25, xend = 63.75, y = 0, yend = 0),
     linetype = "solid",
     color = "white",
     size = 1,
     
-  )
+  ) + 
+  geom_label(aes(
+    x = distance_from_ch_npp_km - 3.75,
+    y = 0,
+    label = distance_from_ch_npp_km
+  ), color = "white")
+
   
 
 exposure
