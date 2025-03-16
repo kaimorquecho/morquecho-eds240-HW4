@@ -28,6 +28,7 @@ library(lubridate)
 library(ggimage)
 library(ggfx)
 library(scales)
+library(gghighlight)
 library(ggtext)
 library(sysfonts)
 library(magick)
@@ -79,10 +80,10 @@ km_intervals <- chernobyl_exposure %>%
   filter(!distance_from_ch_npp_km == 20) %>%
   
   mutate(comparison = paste0(  # assuming 1 chest xray = 0.1 mGy
-    
-    # "Distance: ", distance_from_ch_npp_km, " km from plant \n ", 
+  
     "PEAK RADIATION DOSE: ", absorbed_dose_rate_micro_gray_h, " MGY / HR",
     "\nOR ", absorbed_dose_rate_micro_gray_h/0.1, " CHEST X-RAYS PER HR", sep = " ")) %>% 
+  
   ungroup()
 
 
@@ -207,7 +208,6 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
         axis.ticks = element_blank(),
         axis.title.x = element_blank(),
         axis.line.x = element_blank(),
-        legend.text = element_text(color = "black"),
         # legend.direction = "horizontal",
         # legend.position = "bottom",
         panel.background = element_rect(fill = "black"),
@@ -277,7 +277,7 @@ exposure<- ggplot(chernobyl_exposure, aes(
     
     geom_tile(width = 7.5, height = 0.7, color = "white", show.legend = FALSE),
                   sigma = 2,
-                  expand = 4,
+                  expand = 8,
                   colour = "springgreen"
     
                   ) +  
@@ -298,13 +298,15 @@ exposure<- ggplot(chernobyl_exposure, aes(
 
   labs(
     
-    title = "RADIATION EXPOSURE BY PROXIMITY TO CHERNOBYL NUCLEAR POWER PLANT",
+    title = "Radiation Exposure By Proximity To Chernobyl Nuclear Power Plant (NPP)",
     
-    subtitle = "MEASURED JANUARY 1987 TO JUNE 1987",
+    subtitle = "According to measurements taken between January 1987 & June 1987 (approximately one year after the accident),\nthe radiation levels 5km away from the power plant were still so high that spending 24 hrs there would likely be lethal.",
     
-    x = "Distance from Chernobyl NPP (km)",
+    x = NULL,
     
-    y = NULL
+    y = NULL,
+    
+    caption = "Source: CDC, EPA, and Data.Gov.UK Find Open Data."
   ) +
   
   theme_minimal(base_family = "ss") +
@@ -320,6 +322,12 @@ exposure<- ggplot(chernobyl_exposure, aes(
     axis.title.x = element_blank(),
     axis.line = element_blank(),
     plot.title.position = "plot",
+    plot.caption.position = "plot",
+    plot.caption = element_text(family = "ss",
+                                color = "white",
+                                size = 15,
+                                hjust = 0,
+                                face = "italic"),
     
     plot.title = element_text(
       color = "springgreen", 
@@ -330,39 +338,38 @@ exposure<- ggplot(chernobyl_exposure, aes(
     
     plot.subtitle = element_text(
     color = "white", 
-      size = 25, 
+      size = 20, 
       family = "ss",
       margin = margin(t = 10, r = 0, l = 0, unit = "pt")
     ),
     
-    plot.margin = margin(t = 50, r = 0, b = 50, l = 50, unit = "pt")
+    plot.margin = margin(t = 50, r = 0, b = 100, l = 50, unit = "pt")
     
   ) +
   
-  coord_cartesian(clip = "off", ylim = c(-1.7, 1.8), xlim = c(0,65))
+  coord_cartesian(clip = "off", ylim = c(-1.8, 1.5), xlim = c(0,65))
 
-exposure
 ```
   
 ```{r}
 exposure_annotated <- exposure + 
   
-  with_outer_glow(
+  # with_outer_glow(
     
     annotation_custom(  
     
     plant_grob,
     xmin = -6,  
     xmax = 4,   
-    ymin = 1.7,  
-    ymax = 0.6
+    ymin = 0.6,  
+    ymax = 1.8) +
     
-  ),
-  sigma = 2,
-  expand = 2, 
-  colour = "deeppink"
-  
-  )+
+  # ),
+  # sigma = 3,
+  # expand = 4, 
+  # colour = "darkorange"
+  # 
+  # )+
   
     annotate( 
     "text",
@@ -370,15 +377,15 @@ exposure_annotated <- exposure +
     y = 0,
     size = 7,
     label = "0 KM",
-    family = "ko",
+    family = "ss",
     color = "white"
     ) +
   
   
   geom_segment(
     aes(
-    x = 2.2, xend = 63, y = 0.5, yend = 0.5),  
-    size = 20, 
+    x = 2.4, xend = 63, y = 0.5, yend = 0.5),  
+    size = 27, 
     color = "gray30", 
     lineend = "square"
     
@@ -389,10 +396,12 @@ exposure_annotated <- exposure +
     aes(x = 2.2, xend = 63, y = 0.5, yend = 0.5),
     linetype = "dashed",
     color = "gold2",
-    size = 1.6
+    size = 2
     
   ) +
-
+# 
+#   with_outer_glow(
+    
 geom_segment(
   data = km_intervals,
   aes(
@@ -400,19 +409,45 @@ geom_segment(
     xend = distance_from_ch_npp_km - 3.75,
     y = location,
     yend = -0.1
-  ),
-  color = "white",
-  size = 0.7) +
-
-  geom_text(data = km_intervals, aes( # data on each km interval
+  ), color = "springgreen") +
+#   color = "springgreen",
+#   size = 0.7),
+#   sigma = 2, 
+#   expand = 2,
+#   colour = "springgreen"
+# 
+# )+
+# 
+#   geom_text(data = km_intervals, 
+#   aes( # data on each km interval
+#     x = distance_from_ch_npp_km - 4,
+#     y =  location,
+#     label = paste0(
+#      "Peak Radiation Dose: ", absorbed_dose_rate_micro_gray_h, " mGy / Hr\n", sep = ""
+#   )
+#   ), 
+#   color = "white",
+#   size = 5,
+#   nudge_x = 1.2,
+#   nudge_y = -0.15,
+#   inherit.aes = FALSE,
+#   family = "ss") +
+  
+  
+  geom_text(data = km_intervals, 
+  aes( # data on each km interval
     x = distance_from_ch_npp_km - 4,
     y =  location,
-    label = comparison
+    label = paste0(
+     # absorbed_dose_rate_micro_gray_h, " mGy/Hr, ", 
+      absorbed_dose_rate_micro_gray_h / 0.1, " Chest X-Rays/Hr", sep =""
+  )
   ), 
   color = "white",
-  size = 5,
-  nudge_x = 1.2,
-  nudge_y = -0.15,
+  size = 7,
+  nudge_x = 0.25,
+  hjust = 0,
+  nudge_y = -0.1,
   inherit.aes = FALSE,
   family = "ss") +
   
@@ -482,28 +517,24 @@ geom_segment(
   colour = "springgreen"
    ) +
   
- 
-  with_outer_glow(
+  # with_outer_glow(
     
     geom_segment( # km line
-  aes(x = 1, xend = 64, y = -0.1, yend = -0.1),
-  color = "white",
-  linewidth = 0.2
-),
-
-sigma = 2, 
-expand = 2,
-colour = "springgreen"
-
-)+ 
-
+  aes(x = 1.2, xend = 64, y = -0.1, yend = -0.1),
+  color = "springgreen",
+  linewidth = 0.2) +
+# ),
+# 
+# sigma = 2, 
+# expand = 2,
+# colour = "springgreen"
   
   geom_text(data = km_intervals,  # km markers
   aes(x = distance_from_ch_npp_km - 3, y = 0, 
   label = paste0(distance_from_ch_npp_km, "KM", sep = " ")), 
   color = "white", 
-  family = "ko",
-  size = 6)+
+  family = "ss",
+  size = 7)+
 
   theme(text = element_text(family = "ss")) 
 
