@@ -91,6 +91,23 @@ km_intervals$location <-c(-0.9,-0.9,-0.9,-0.9)
 
 ```
 
+# Wrangle Chernobyl water Cs data
+```{r}
+deposition_conversion_factor <- 1000 # for kBq to Bq
+bq_to_pci <- 27.027 # Bq to pCi conversion factor
+
+# Calculate concentration and create one new column in the data frame
+chernobyl_water$concentration_pci_l <- round((chernobyl_water$x137cs_deposition_k_bq_m2 * deposition_conversion_factor) * 
+  (chernobyl_water$surface_km2 * 1e6) / (chernobyl_water$surface_km2 * 1e6 * chernobyl_water$max_depth_m * 1000) * bq_to_pci)
+
+# normalize based on EPA annual limit (200pCi/L) to put into context
+chernobyl_water$normalized <- round(chernobyl_water$concentration_pci_l/200)
+
+## filter to the higher values
+chernobyl_water <- chernobyl_water %>%
+  filter(normalized > 50)
+```
+
 # Wrangle nuclear accidents data
 ```{r}
 # filter to INES levels of interest 
@@ -248,8 +265,8 @@ warning <- readPNG(warning_path, native = FALSE)
 
 # turn to raster grob
 plant_grob <- rasterGrob(plant,
-                         width = unit(4, "cm"), 
-                         height = unit(5,"cm"),
+                         width = unit(2.5, "cm"), 
+                         height = unit(2.5,"cm"),
                          x = unit(0, "npc"),  
                          y = unit(0, "npc"), 
                          just = c("left", "center")) 
@@ -262,7 +279,6 @@ warning_grob <- rasterGrob(warning,
                          just = c("left", "center")) 
                     
 ```
-
 
 # Create Exposure Data Viz
 ```{r}
@@ -376,8 +392,8 @@ exposure_annotated <- exposure +
   
   geom_segment(
     aes(
-    x = 2.9, xend = 63, y = 0.5, yend = 0.5),  
-    size = 27, 
+    x = 2.8, xend = 62, y = 0.5, yend = 0.5),  
+    size = 20, 
     color = "gray30", 
     lineend = "square"
     
@@ -385,7 +401,7 @@ exposure_annotated <- exposure +
   
   geom_segment(
     
-    aes(x = 2.2, xend = 63, y = 0.5, yend = 0.5),
+    aes(x = 2.4, xend = 61, y = 0.5, yend = 0.5),
     linetype = "dashed",
     color = "gold2",
     size = 2
@@ -488,7 +504,7 @@ exposure_annotated <- exposure +
    ) +
   
   geom_text(data = km_intervals,  # km markers
-  aes(x = distance_from_ch_npp_km - 2.75, y = -0.7, 
+  aes(x = distance_from_ch_npp_km - 2.75, y = -0.65, 
   label = paste0(distance_from_ch_npp_km, "KM", sep = " ")), 
   color = "white", 
   family = "ko",
@@ -499,52 +515,135 @@ exposure_annotated <- exposure +
 exposure_annotated
 ```
 
+
+# Make wave data for water data viz 
+```{r}
+wave_data <- data.frame(
+  x = seq(0, 15, length.out = 100),
+  y = 6 * sin(seq(0, 10 * pi, length.out = 100)) + 5  
+)
+
+wave_segments <- wave_data %>%
+  mutate(
+    xend = lead(x),
+    yend = lead(y)
+  ) %>%
+  filter(!is.na(xend))
+```
+
 # Create water contamination data viz 
 ```{r}
 
-water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = x137cs_deposition_k_bq_m2)) +
+water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized)) +
   
-  # trend line with glow
-  with_outer_glow(
-    geom_smooth(method = "loess", se = FALSE, color = "deeppink", size = 1.5),
-    colour = "deeppink",
-    sigma = 5,
-    expand = 1
+  geom_segment(aes(x = distance_from_cnpp_km,
+                   y = 0,
+                   yend = normalized),
+               color = "white",
+               linetype = "dashed") +
+  
+  geom_segment(
+    data = wave_segments,
+    aes(x = x, y = y, xend = xend, yend = yend),
+    color = "deepskyblue",
+    size = 1.2
   ) +
   
-    # lakes as points
+# lakes as points
   with_outer_glow(
-    geom_point(size = 2, color = "white"),
+    geom_point(aes(x = distance_from_cnpp_km,
+                   y = normalized,
+                   size = 13), 
+               color = "springgreen",
+               show.legend = FALSE,
+               stroke = 4),
     colour = "deeppink",
     sigma = 3,
-    expand = 3
+    expand = 5
+  ) + 
+    
+# arrows pointing to each point
+    geom_curve(
+    aes(x = distance_from_cnpp_km + 2,  
+        y = normalized - 6.5,    
+        xend = distance_from_cnpp_km + 0.1,     
+        yend = normalized + 10),            
+    color = "springgreen",              
+    curvature = 0.4,                   
+    arrow = arrow(type = "closed", length = unit(0.1, "inches")), 
+    size = 0.7                       
   ) +
-
-  scale_y_continuous(trans = "sqrt") +
   
-  # Labels
+  # lake names
+  annotate("text",
+           x = .7,
+           y = 144,
+           label = "Lake Glubokoye",
+           family = "ss",
+           color = "white",
+           size = 5) +
+    annotate("text",
+           x = 1.5,
+           y = 230,
+           label = "Lake Yanovsky",
+           family = "ss",
+           color = "white",
+           size = 5) +
+      annotate("text",
+           x = 8.75,
+           y = 287,
+           label = "Power Plant's Cooling Pond",
+           family = "ss",
+           color = "white",
+           size = 5) +
+  
+  
+  geom_label(aes(x = distance_from_cnpp_km,
+                   y = normalized,
+             label = paste0(normalized,"x ","the EPA'S annual max level of Cs-137\n contamination in drinking water")),
+             family = "ss",
+             fontface = "plain",
+             size = 5,
+             fill = "black",
+             color = "white",
+             nudge_x = 2,
+             nudge_y = -7.5) +
+
+  
+  scale_x_continuous(limits = c(0,15),
+                     expand = c(0,0),
+                     breaks = c(0,1.5,2.3,10,15),
+                     labels = c("Chernobyl NPP","1.5 KM","2.5 KM", "10 KM", "15 KM")) +
+  
   labs(
-    title = "Radioactive Cesium-137 Deposition",
-    subtitle = "Distance from Chernobyl NPP vs Deposition (kBq/m²)",
-    x = "Distance from Chernobyl NPP (km)",
-    y = "Cs-137 Deposition (kBq/m²)"
+    title = "Dangerously High Cesium-137 Water Concentration\nLevels in Lakes Near The Accident",
+    subtitle = "Distance from Chernobyl NPP vs Relative Cs-137 Water Concentration",
+    x = "Distance from Chernobyl NPP (km)"
+    # y = "Relavtive Cs-137 Water Concentration (pCi/L divided by 200 pCi/L)"
   ) +
 
   theme(
     plot.background = element_rect(fill = "black", color = NA),
     panel.background = element_rect(fill = "black", color = NA),
-    panel.grid = element_line(colour = "springgreen",
-                              linewidth = 0.1),
-    
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.line.x = element_line(color = "white"),
+    axis.line.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.ticks.x = element_line(color = "white", size = 0.5),
     axis.title = element_text(color = "white", size = 14, family = "ss"),
-    axis.text = element_text(color = "white", size = 12, family = "ss"),
+    axis.text.x = element_text(color = "white", size = 15, family = "ss"),
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank(),
+    plot.title = element_text(color = "springgreen", size = 20, family = "ko",
+                              margin = margin(t = 20, r = 0, b = 20, l = 0, "pt")),
+    plot.subtitle = element_text(color = "white", size = 18, family = "ss",
+                                 margin = margin(t = 0, r = 0, b = 20, l = 0, "pt")),
     
-    plot.title = element_text(color = "springgreen", size = 20, family = "ko"),
-    plot.subtitle = element_text(color = "white", size = 14, family = "ss"),
-    
-    plot.margin = margin(1, 1, 1, 1, "cm")
-  )
-
+    plot.margin = margin(t = 10, r = 300, b = 100, l = 200, "pt")
+  ) 
 ggsave("chernobyl_water_glow.png", plot = water, width = 10, height = 6, dpi = 300)
 
 water
