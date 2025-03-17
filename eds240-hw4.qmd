@@ -87,7 +87,7 @@ km_intervals <- chernobyl_exposure %>%
   ungroup()
 
 
-km_intervals$location <-c(-0.6,-0.2,-0.2,-0.2)
+km_intervals$location <-c(-0.9,-0.9,-0.9,-0.9)
 
 ```
 
@@ -249,7 +249,7 @@ warning <- readPNG(warning_path, native = FALSE)
 # turn to raster grob
 plant_grob <- rasterGrob(plant,
                          width = unit(4, "cm"), 
-                         height = unit(6,"cm"),
+                         height = unit(5,"cm"),
                          x = unit(0, "npc"),  
                          y = unit(0, "npc"), 
                          just = c("left", "center")) 
@@ -354,8 +354,6 @@ exposure<- ggplot(chernobyl_exposure, aes(
 ```{r}
 exposure_annotated <- exposure + 
   
-  # with_outer_glow(
-    
     annotation_custom(  
     
     plant_grob,
@@ -363,28 +361,22 @@ exposure_annotated <- exposure +
     xmax = 4,   
     ymin = 0.6,  
     ymax = 1.8) +
-    
-  # ),
-  # sigma = 3,
-  # expand = 4, 
-  # colour = "darkorange"
-  # 
-  # )+
+  
   
     annotate( 
     "text",
     x = -3,
-    y = 0,
-    size = 7,
+    y = -0.1,
+    size = 6,
     label = "0 KM",
-    family = "ss",
+    family = "ko",
     color = "white"
     ) +
   
   
   geom_segment(
     aes(
-    x = 2.4, xend = 63, y = 0.5, yend = 0.5),  
+    x = 2.9, xend = 63, y = 0.5, yend = 0.5),  
     size = 27, 
     color = "gray30", 
     lineend = "square"
@@ -399,55 +391,33 @@ exposure_annotated <- exposure +
     size = 2
     
   ) +
-# 
-#   with_outer_glow(
-    
-geom_segment(
+  
+  geom_curve(
   data = km_intervals,
   aes(
-    x = distance_from_ch_npp_km - 3.75,
+    x = distance_from_ch_npp_km - 3.5,
+    y = -0.5,
     xend = distance_from_ch_npp_km - 3.75,
-    y = location,
-    yend = -0.1
-  ), color = "springgreen") +
-#   color = "springgreen",
-#   size = 0.7),
-#   sigma = 2, 
-#   expand = 2,
-#   colour = "springgreen"
-# 
-# )+
-# 
-#   geom_text(data = km_intervals, 
-#   aes( # data on each km interval
-#     x = distance_from_ch_npp_km - 4,
-#     y =  location,
-#     label = paste0(
-#      "Peak Radiation Dose: ", absorbed_dose_rate_micro_gray_h, " mGy / Hr\n", sep = ""
-#   )
-#   ), 
-#   color = "white",
-#   size = 5,
-#   nudge_x = 1.2,
-#   nudge_y = -0.15,
-#   inherit.aes = FALSE,
-#   family = "ss") +
+    yend = 0.1
+  ),
+  curvature = -0.3, 
+  color = "white",
+  linewidth = 0.7,
+  arrow = arrow(length = unit(0.25, "cm"), type = "closed")
+) +
+
   
-  
-  geom_text(data = km_intervals, 
+  geom_label(data = km_intervals, 
   aes( # data on each km interval
     x = distance_from_ch_npp_km - 4,
     y =  location,
     label = paste0(
-     # absorbed_dose_rate_micro_gray_h, " mGy/Hr, ", 
-      absorbed_dose_rate_micro_gray_h / 0.1, " Chest X-Rays/Hr", sep =""
-  )
-  ), 
+    absorbed_dose_rate_micro_gray_h / 0.1, " Chest X-Rays/Hr", sep ="")), 
   color = "white",
-  size = 7,
-  nudge_x = 0.25,
+  fill = "black",
+  size = 6,
   hjust = 0,
-  nudge_y = -0.1,
+  nudge_x = c(-5,-0.3,-0.3,-0.3),
   inherit.aes = FALSE,
   family = "ss") +
   
@@ -517,24 +487,12 @@ geom_segment(
   colour = "springgreen"
    ) +
   
-  # with_outer_glow(
-    
-    geom_segment( # km line
-  aes(x = 1.2, xend = 64, y = -0.1, yend = -0.1),
-  color = "springgreen",
-  linewidth = 0.2) +
-# ),
-# 
-# sigma = 2, 
-# expand = 2,
-# colour = "springgreen"
-  
   geom_text(data = km_intervals,  # km markers
-  aes(x = distance_from_ch_npp_km - 3, y = 0, 
+  aes(x = distance_from_ch_npp_km - 2.75, y = -0.7, 
   label = paste0(distance_from_ch_npp_km, "KM", sep = " ")), 
   color = "white", 
-  family = "ss",
-  size = 7)+
+  family = "ko",
+  size = 6)+
 
   theme(text = element_text(family = "ss")) 
 
