@@ -1,6 +1,6 @@
 ---
-title: "Assignment 3 (HW #3)"
-subtitle: "Nuclear Energy Infographic"
+title: "Assignment 4 (HW #4)"
+subtitle: "Dangers of Nuclear Energy Infographic"
 description: "Assigned Tue 02/11/2025 | Due Tue 02/25/2025"
 author: "Kaiju Morquecho"
 toc: true
@@ -706,11 +706,6 @@ ggsave("plot_base.png",
        units = "cm",
        dpi = 300
        )
-
-```
-
-# Glue it together
-```{r}
 
 ```
 
