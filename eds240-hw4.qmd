@@ -17,7 +17,7 @@ library(janitor)
 library(png)
 library(jpeg)
 library(patchwork)
-library(scico)
+library(glue)
 library(tidyverse)
 library(htmltools)
 library(ggrepel)
@@ -58,6 +58,25 @@ chernobyl_water <- read.csv(here("data","chernobyl_water_chem.csv")) %>%
 
 nuclear_accidents <- read.csv(here("data","nuclear_accidents.csv") ) %>%
   clean_names() 
+```
+
+
+# Create raster grob of INES scale
+```{r}
+# save power plant image path + warning sign path
+ines_path <- here("samples", "ines.png")
+
+# read as PNG
+ines <- readPNG(ines_path, native = FALSE)
+
+# turn to raster grob
+ines_grob <- rasterGrob(ines,
+                         width = unit(2.5, "cm"), 
+                         height = unit(2.5,"cm"),
+                         x = unit(0, "npc"),  
+                         y = unit(0, "npc"), 
+                         just = c("left", "center")) 
+  
 ```
 
 # Wrangle Chernobyl exposure rate data 
@@ -123,13 +142,8 @@ nuclear_accidents$date <- year(as.Date(parse_date_time(nuclear_accidents$date, o
 
 ```
 
+# Prepare nuclear accidents timeline positions
 ```{r}
-# add nuclear symbol to df
-nuclear_accidents$image <- rep(c(here("samples","nuclear_symbol.png")), 10)
-
-# name background image object
-
-background <- "https://miro.medium.com/v2/resize:fit:4800/format:webp/1*hL391IqaaorQv-c5-a5w-w.jpeg"
 
 # heights for milestones.
 nuclear_accidents$positions <- c(0.13, -0.1, 0.09, -0.05, .05, -.1, .09, -.05, .05, -.05) 
@@ -140,8 +154,7 @@ nuclear_accidents$directions <- c(1, -1)
 ```
 
 # Create timeline of nuclear accidents
-
-```{r}
+```{r fig.width=15, fig.height=12}
 
 timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = description)) +
   theme_classic() +
@@ -152,29 +165,19 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
     geom_hline(yintercept = 0,
              color = "springgreen",
              alpha = 0.9,
-             linejoin = "round",
-             linewidth = 3,
+             linewidth = 5,
              show.legend = FALSE),
     
-    
     colour = "springgreen",
     sigma = 2,
-    expand = 1) +
+    expand = 3) +
   
-  # lines conencting accident to timeline
-  with_outer_glow(
-    
-    
-    geom_segment(data = nuclear_accidents, aes(y = positions,
-                                             yend = 0,
-                                             xend = date),
-                 linewidth = 1,
-                 color = "springgreen"),
-    
-    
-    colour = "springgreen",
-    sigma = 2,
-    expand = 0.5) +
+  # lines connecting accident to timeline
+
+   geom_segment(data = nuclear_accidents, aes(y = positions, yend = 0,xend = date),
+                linewidth = .6,
+                color = "white",
+                linetype ="dashed") +
   
   # year labels on timeline
   geom_label(aes(x = date, 
@@ -183,7 +186,7 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
              fill = "black",
              color = "white",
              family = "ss",
-             size = 7,
+             size = 6,
              show.legend = FALSE) +
 
   geom_point(aes(y = positions), size = 1) +
@@ -192,9 +195,9 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
   # text boxes that are html friendly, accident description
   geom_textbox(aes(label = str_wrap(
     
-    paste0("<b><span style='color:black;'>",incident,".</b>", tags$br(), location))),
-    fill = "white",
-    color = "black",
+    paste0("<b><span style='color:white;'>",incident,".</b>", tags$br(), location))),
+    fill = "black",
+    color = "white",
     size = 5,
     
     family = "ss",
@@ -203,6 +206,25 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
     valign = 0.5,
     show.legend = TRUE
               ) +
+  # add INES level 
+  
+    geom_text(aes(x = date, 
+                y = positions,  # adjust vertical position for the text
+                label = paste0("INES level ",ines_level),
+                color = factor(ines_level)),  
+            size = 7,  
+            family = "ko",
+            nudge_x = 3.7,
+            nudge_y = c(-.015,-.015,-.015,-.015,-.015,-.015,-.0192,-.015,-.015,-0.015),
+            show.legend = FALSE)+
+  
+  scale_color_manual(values = c(
+    "6" = "firebrick2",
+    "5" = "tomato1",
+    "4" = "gold1",
+    "7" = "deeppink2"
+  ), aesthetics = "color") +
+  
   
   labs(title = "AT A GLANCE: HISTORY OF NUCLEAR ACCIDENTS",
        subtitle = "The International Nuclear and Radiological Event Scale (INES) is a logarithmic scale with 7 levels. Levels 4-7 are reserved for high-impact accidents") +
@@ -224,6 +246,7 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
         axis.title.x = element_blank(),
+        legend.position = "none",
         axis.line.x = element_blank(),
         # legend.direction = "horizontal",
         # legend.position = "bottom",
@@ -234,13 +257,10 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
   
    coord_cartesian(clip = "off")
 
-
-# timeline <- ggbackground(timeline, background, alpha = 0.1)
-
 ggsave("timeline.png",
        plot = timeline,
        device = "png",
-       width = 10, 
+       width = 15, 
        height = 12,
        units = "cm",
        dpi = 300
@@ -256,7 +276,6 @@ timeline
 plant_path <- here("samples", "design.png")
 
 warning_path <- here("samples","warning.png")
-
 
 # read as PNG
 plant <- readPNG(plant_path, native = FALSE)
@@ -324,8 +343,7 @@ exposure<- ggplot(chernobyl_exposure, aes(
     
     caption = "Source: CDC, EPA, and Data.Gov.UK Find Open Data."
   ) +
-  
-  theme_minimal(base_family = "ss") +
+
   
   theme(
     plot.background = element_rect(fill = "black", color = NA),
@@ -334,7 +352,7 @@ exposure<- ggplot(chernobyl_exposure, aes(
     axis.ticks.y = element_blank(),
     axis.title.y = element_blank(),
     axis.ticks.x = element_blank(),
-    axis.text.x = element_blank(),
+    axis.text = element_blank(),
     axis.title.x = element_blank(),
     axis.line = element_blank(),
     plot.title.position = "plot",
@@ -359,29 +377,31 @@ exposure<- ggplot(chernobyl_exposure, aes(
       margin = margin(t = 10, r = 0, l = 0, unit = "pt")
     ),
     
-    plot.margin = margin(t = 50, r = 0, b = 100, l = 50, unit = "pt")
+    plot.margin = margin(t = 50, r = 20, b = 100, l = 50, unit = "pt")
     
   ) +
   
   coord_cartesian(clip = "off", ylim = c(-1.8, 1.5), xlim = c(0,65))
 
 ```
-  
-```{r}
+
+
+# Add Annotations in Separate Code Chunk
+```{r fig.width=25, fig.height=10}
 exposure_annotated <- exposure + 
   
     annotation_custom(  
     
     plant_grob,
-    xmin = -6,  
-    xmax = 4,   
+    xmin = -3,  
+    xmax = 7,   
     ymin = 0.6,  
     ymax = 1.8) +
   
   
     annotate( 
     "text",
-    x = -3,
+    x = -2,
     y = -0.1,
     size = 6,
     label = "0 KM",
@@ -392,7 +412,7 @@ exposure_annotated <- exposure +
   
   geom_segment(
     aes(
-    x = 2.8, xend = 62, y = 0.5, yend = 0.5),  
+    x = 2.4, xend = 63, y = 0.5, yend = 0.5),  
     size = 20, 
     color = "gray30", 
     lineend = "square"
@@ -418,7 +438,7 @@ exposure_annotated <- exposure +
   ),
   curvature = -0.3, 
   color = "white",
-  linewidth = 0.7,
+  size = 0.7,
   arrow = arrow(length = unit(0.25, "cm"), type = "closed")
 ) +
 
@@ -433,7 +453,7 @@ exposure_annotated <- exposure +
   fill = "black",
   size = 6,
   hjust = 0,
-  nudge_x = c(-5,-0.3,-0.3,-0.3),
+  nudge_x = c(-3,-0.3,-0.3,-0.3),
   inherit.aes = FALSE,
   family = "ss") +
   
@@ -508,11 +528,18 @@ exposure_annotated <- exposure +
   label = paste0(distance_from_ch_npp_km, "KM", sep = " ")), 
   color = "white", 
   family = "ko",
-  size = 6)+
-
-  theme(text = element_text(family = "ss")) 
+  size = 6)
 
 exposure_annotated
+
+ggsave("exposure_annotated.png",
+       plot = exposure_annotated,
+       device = "png",
+       width = 25, 
+       height = 10,
+       units = "cm",
+       dpi = 300
+       )
 ```
 
 
@@ -532,7 +559,7 @@ wave_segments <- wave_data %>%
 ```
 
 # Create water contamination data viz 
-```{r}
+```{r fig.width= 25, fig.height=12}
 
 water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized)) +
   
@@ -616,8 +643,8 @@ water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized))
                      labels = c("Chernobyl NPP","1.5 KM","2.5 KM", "10 KM", "15 KM")) +
   
   labs(
-    title = "Dangerously High Cesium-137 Water Concentration\nLevels in Lakes Near The Accident",
-    subtitle = "Distance from Chernobyl NPP vs Relative Cs-137 Water Concentration",
+    title = "Dangerously High Cesium-137 Water Concentration\nLevels in Lakes Near The Accident 28 Years Later",
+    subtitle = "Water Samples From 3 Lakes Near Chernobyl NPP Show Dangerous Cesium-137 Water Contamination Levels, Relative to the EPA's Max ANNUAL Limit",
     x = "Distance from Chernobyl NPP (km)"
     # y = "Relavtive Cs-137 Water Concentration (pCi/L divided by 200 pCi/L)"
   ) +
@@ -642,9 +669,48 @@ water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized))
     plot.subtitle = element_text(color = "white", size = 18, family = "ss",
                                  margin = margin(t = 0, r = 0, b = 20, l = 0, "pt")),
     
-    plot.margin = margin(t = 10, r = 300, b = 100, l = 200, "pt")
+    plot.margin = margin(t = 30, r = 70, b = 30, l = 70, "pt")
   ) 
-ggsave("chernobyl_water_glow.png", plot = water, width = 10, height = 6, dpi = 300)
+
 
 water
+
+ggsave("water.png",
+       plot = water,
+       device = "png",
+       width = 25, 
+       height = 10,
+       units = "cm",
+       dpi = 300
+       )
 ```
+
+# Create base plot
+```{r}
+
+plot_base <- ggplot() +
+
+  labs(
+    title = "UFO Sightings",
+    subtitle = "Summary of over 88k reported sightings across the US",
+    caption = "caasdf",
+    ) +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "black")) 
+
+ggsave("plot_base.png",
+       plot = plot_base,
+       device = "png",
+       width = 25, 
+       height = 12,
+       units = "cm",
+       dpi = 300
+       )
+
+```
+
+# Glue it together
+```{r}
+
+```
+
