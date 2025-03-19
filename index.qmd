@@ -5,7 +5,7 @@ description: "Assigned Tue 02/11/2025 | Due Tue 02/25/2025"
 author: "Kaiju Morquecho"
 toc: true
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r message=FALSE}
@@ -46,6 +46,60 @@ showtext_auto()
 ```{r}
 font_add_google(name = "Keania One", family = "ko")
 font_add_google(name = "Smooch Sans", family = "ss")
+```
+
+# Create Titles and Headings
+```{r fig.width=30, fig.height=3}
+main_title_1 <- ggplot() +
+  annotate("text",
+           x = 2,
+           y = 2, 
+           label = "IS NUCLEAR ENERGY THE FUTURE?",
+           family = "ko", 
+           size = 40,
+           color = "springgreen") +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "black", 
+                                   color = "black"))
+
+main_title_1
+
+ggsave("main_title_1.png",
+       plot = main_title_1,
+       device = "png",
+       width = 5, 
+       height = 1,
+       units = "cm",
+       dpi = 300
+       )
+
+# ---------------- main title 2
+
+main_title_2 <- ggplot() +
+  annotate("text",
+           x = 2,
+           y = 2, 
+           label = "OR IS IT HOW WE KILL THE FUTURE?",
+           family = "ko", 
+           size = 40,
+           color = "springgreen") +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "black", 
+                                   color = "black"))
+
+main_title_2
+
+
+
+
+ggsave("main_title_2.png",
+       plot = main_title_2,
+       device = "png",
+       width = 5, 
+       height = 1,
+       units = "cm",
+       dpi = 300
+       )
 ```
 
 # Load data
@@ -179,6 +233,124 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
                 color = "white",
                 linetype ="dashed") +
   
+  # glowing orb for each accident indicating INES level, path of least resistance
+
+  with_outer_glow( # nuclear accident 1 
+  
+  geom_point(data = nuclear_accidents, aes(x = date[1], y = positions[1]), size = 30, color = "#ff0000"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "#ff0000"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 2
+  
+  geom_point(data = nuclear_accidents, aes(x = date[2], y = positions[2]), size = 37, color = "#ff4d00"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "#ff4d00"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 3
+  
+  geom_point(data = nuclear_accidents, aes(x = date[3], y = positions[3]), size = 37, color = "gold"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "gold"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 4
+  
+  geom_point(data = nuclear_accidents, aes(x = date[4], y = positions[4]), size = 37, color = "gold"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "gold"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 5
+  
+  geom_point(data = nuclear_accidents, aes(x = date[5], y = positions[5]), size = 37, color = "gold"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "gold"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 6
+  
+  geom_point(data = nuclear_accidents, aes(x = date[6], y = positions[6]), size = 37, color = "gold"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "gold"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 7
+  
+  geom_point(data = nuclear_accidents, aes(x = date[7], y = positions[7]), size = 35, color = "#ff4d00"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "#ff4d00"
+    
+  ) +
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 8 
+  
+  geom_point(data = nuclear_accidents, aes(x = date[8], y = positions[8]), size = 30, color = "deeppink"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "deeppink"
+    
+  ) +
+  
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 9
+  
+  geom_point(data = nuclear_accidents, aes(x = date[9], y = positions[9]), size = 37, color = "gold"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "gold"
+    
+  ) +
+  # glowing orb for each accident indicating INES level 
+
+  with_outer_glow( # nuclear accident 10
+  
+  geom_point(data = nuclear_accidents, aes(x = date[10], y = positions[10]), size = 30, color = "deeppink"),
+  
+  sigma = 10,
+  expand = 3,
+  colour = "deeppink"
+    
+  ) + 
+  
   # year labels on timeline
   geom_label(aes(x = date, 
                 label = date,
@@ -188,9 +360,6 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
              family = "ss",
              size = 6,
              show.legend = FALSE) +
-
-  geom_point(aes(y = positions), size = 1) +
-
   
   # text boxes that are html friendly, accident description
   geom_textbox(aes(label = str_wrap(
@@ -206,27 +375,10 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
     valign = 0.5,
     show.legend = TRUE
               ) +
-  # add INES level 
   
-    geom_text(aes(x = date, 
-                y = positions,  # adjust vertical position for the text
-                label = paste0("INES level ",ines_level),
-                color = factor(ines_level)),  
-            size = 7,  
-            family = "ko",
-            nudge_x = 3.7,
-            nudge_y = c(-.015,-.015,-.015,-.015,-.015,-.015,-.0192,-.015,-.015,-0.015),
-            show.legend = FALSE)+
+  # geom_point(data = nuclear_accidents, aes(x = date, y = positions), size = 20) +
   
-  scale_color_manual(values = c(
-    "6" = "firebrick2",
-    "5" = "tomato1",
-    "4" = "gold1",
-    "7" = "deeppink2"
-  ), aesthetics = "color") +
-  
-  
-  labs(title = "AT A GLANCE: HISTORY OF NUCLEAR ACCIDENTS",
+  labs(title = "At a Glance: A History of Nuclear Accidents",
        subtitle = "The International Nuclear and Radiological Event Scale (INES) is a logarithmic scale with 7 levels. Levels 4-7 are reserved for high-impact accidents") +
   
   
@@ -248,9 +400,8 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
         axis.title.x = element_blank(),
         legend.position = "none",
         axis.line.x = element_blank(),
-        # legend.direction = "horizontal",
-        # legend.position = "bottom",
-        panel.background = element_rect(fill = "black"),
+        panel.background = element_rect(fill = "black",
+                                        color = "black"),
         plot.background = element_rect(fill = "black"),
         plot.margin = margin(t = 70, r = 100, b = 70, l = 100, unit = "pt")) +
   
@@ -559,7 +710,7 @@ wave_segments <- wave_data %>%
 ```
 
 # Create water contamination data viz 
-```{r fig.width= 25, fig.height=12}
+```{r fig.width= 16, fig.height=9}
 
 water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized)) +
   
@@ -580,7 +731,7 @@ water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized))
   with_outer_glow(
     geom_point(aes(x = distance_from_cnpp_km,
                    y = normalized,
-                   size = 13), 
+                   size = 30), 
                color = "springgreen",
                show.legend = FALSE,
                stroke = 4),
@@ -669,7 +820,7 @@ water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized))
     plot.subtitle = element_text(color = "white", size = 18, family = "ss",
                                  margin = margin(t = 0, r = 0, b = 20, l = 0, "pt")),
     
-    plot.margin = margin(t = 30, r = 70, b = 30, l = 70, "pt")
+    plot.margin = margin(t = 30, r = 70, b = 50, l = 70, "pt")
   ) 
 
 
@@ -678,8 +829,8 @@ water
 ggsave("water.png",
        plot = water,
        device = "png",
-       width = 25, 
-       height = 10,
+       width = 18, 
+       height = 12,
        units = "cm",
        dpi = 300
        )
