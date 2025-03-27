@@ -1,12 +1,107 @@
 ---
-title: "Assignment 4 (HW #4)"
-subtitle: "Dangers of Nuclear Energy Infographic"
-description: "Assigned Tue 02/11/2025 | Due Tue 02/25/2025"
+title: "Nuclear Energy Promises a Bright Future"
+subtitle: "But Behind its Reactor Doors Hides Impending Disaster"
+theme: cyborg
+description: "Crafting a nuclear disaster infographic with R and Canva"
 author: "Kaiju Morquecho"
-toc: true
+warning: false
+execute: 
+  echo: false
+format:
+  html:
+    toc: true
+    toc-title: "Contents"
+    code-fold: true
+    code-summary: "Show the code"
+    include-in-header:
+      - text: |
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rubik+Glitch&family=Smooch+Sans:wght@100..900&family=Sofia+Sans+Condensed:ital,wght@0,1..1000;1,1..1000&display=swap" rel="stylesheet">
+          <style>
+            body {
+              font-family: 'Smooch Sans', sans-serif;
+            }
+            h1, h2, h3, h4, h5, h6 {
+              font-family: 'Bebas Neue', sans-serif;
+            }
+            p {
+              font-family: 'Smooch Sans', sans-serif;
+            }
+          </style>
 editor_options: 
   chunk_output_type: inline
 ---
+
+[I’ve been learning about nuclear disasters since I was 7, an interest I inherited from my brother. I remember the day he showed me what Chernobyl was and the many hours I spent that day googling pictures and facts about the accident. In 2011 we stayed up late, watching the news coverage of the Fukushima nuclear accident in Japan. It had been predicted that a meltdown was unavoidable and a hydrogen explosion imminent and we watched as the first explosion occurred. I’m fascinated with nuclear energy because as humans we believe that we can tame the fission chain reaction, yet atomic energy has proven to us time and again that as long as humans are the ones running the show, accidents are only a matter of time. I figured I'd combine this interest of mine with my newly learned data viz skills to create an infographic. ]{style="springgreen"}
+
+#### **The Question**
+
+The main question I explore in this data viz project is if the benefits and advantages of nuclear energy are worth the catastrophic consequences of nuclear accidents. Although nuclear accidents are statistically rare, the potential for human error in operating nuclear power plants makes them a question of when, not if.
+
+#### **The Data** 
+
+The data comes from 2 different sources
+
+-   Natural Environmental Research Council's Environmental Information Data Centre
+
+    -   [Water Chemistry of Seven Lakes in Belarus and Ukraine 2014 - 2016](https://www.data.gov.uk/dataset/ee542417-0491-4691-8982-45e58cb525bc/water-chemistry-of-seven-lakes-in-belarus-and-ukraine-2014-to-2016), accessed through the data.gov.uk Find open data page.
+
+    -   [Spatial Datasets of Radionuclide Contamination in the Ukrainian Chernobyl Exclusion Zone](https://catalogue.ceh.ac.uk/documents/782ec845-2135-4698-8881-b38823e533bf), accessed through the data.gov.uk Find open data page.
+
+-   Kaggle
+
+    -   [Major Nuclear Plant Accidents (1957 - 2011)](https://www.kaggle.com/code/ahmadwaleed1/nuclear-plant-incidents-deep-analysis/notebook), accessed via Kaggle.
+
+#### **Additional Data** 
+
+-   [Center for Disease Control and Prevention](https://wwwn.cdc.gov/TSP/ToxFAQs/ToxFAQsDetails.aspx?faqid=576&toxid=107#:~:text=EPA%20has%20set%20an%20average,will%20not%20exceed%204%20millirem.)
+
+-   [International Atomic Energy Agency](https://www.iaea.org/resources/databases/international-nuclear-and-radiological-event-scale)
+
+-   [World Nuclear Association](https://world-nuclear.org/information-library/safety-and-security/safety-of-plants/chernobyl-accident)
+
+#### **The Goal**
+
+In the infographic below I propose that despite the promise of clean energy and the relatively low number of nuclear accidents, nuclear energy is not worth the gamble. I dive into the details of the Chernobyl nuclear accident to show that not only is the radioactive contamination far-reaching, but also ever-lasting.
+
+I present data on the water chemistry of three lakes near the Chernobyl Nuclear Power Plant, normalized by the EPA’s annual water contamination limit for Cs-137, to illustrate the extent of radionuclide dispersion. These water samples, collected between 2014 and 2016—more than 20 years after the disaster—underscore the persistent legacy of nuclear contamination. I also analyze data on radiation exposure doses and rates near the NPP one year after the accident, highlighting the immediate and extreme danger of nuclear energy gone wrong.
+
+#### **The Elements**
+
+*Graphic Forms*
+
+I chose to move away from common graphic forms for the first two data viz in my infographic, white the third data viz was made using a common graphic form.
+
+-   Data Viz 1: A timeline made using ggplot's geom_segment, geom_point, geom_label, and geom_text to show nuclear accidents INES level 4 or higher over time.
+
+-   Data Viz 2: A color bar to show radiation exposure by distance to the Chernobyl NPP. The bar was made primarily using geom_tile, geom_segment and geom_labels.
+
+-   Data Viz 3: A graph showing 3 lakes near the NPP, normalized by the EPA's annual Cs-137 water contamination levels where the x-axis is distance to the NPP and the y-axis is the Cs-137 concentration normalized.
+
+*Text*
+
+I used text to point out the most important takeaways from each data viz and to provide context to each graph in the subtitle. Axis text was largely replaced by the labels and annotations I added to each graph to make the viewer consume only the most important data points.
+
+*Themes*
+
+I intentionally modified most non-data plot elements to be visually pleasing and to appeal to viewers' associations of neon colors, especially green, to radioactivity. I also incorporated glow to several plot elements - I made the timeline, data points and color bar outer borders glow using the ggfx package.
+
+*Colors*
+
+I chose three main colors to apply to all my data viz and infographic - deep pink, spring green, and deep sky blue. These colors are bright and neon-like and are meant to maintain the theme of radioactive glow. They also worked well with the effects of the ggfx package's function "with_outer_glow( )". Other than these two colors, all other elements and text were kept in black and white. I used black to create a sense of darkness and doom, as well as a futuristic-to-80s feel, in the infographic.
+
+-   typography
+
+-   general design (e.g. group order, spacing, text orientation, data-ink ratio, creating a visual hierarchy, avoiding information overload)
+
+-   contextualizing your data
+
+-   centering your primary message
+
+-   considering accessibility (e.g. colorblind-friendly palettes / contrast, alt text)
+
+-   applying a DEI lens to your design, as appropriate (e.g. considering the people / communities / places represented in your data, consider how you frame your questions / issue)
 
 ```{r message=FALSE}
 # Load libraries 
@@ -35,26 +130,22 @@ library(magick)
 library(showtext)
 ```
 
-## Enable showtext_auto()
 ```{r}
 # enable showtext 
 showtext_auto()
 ```
-
-## Load fonts
 
 ```{r}
 font_add_google(name = "Keania One", family = "ko")
 font_add_google(name = "Smooch Sans", family = "ss")
 ```
 
-# Create Titles and Headings
-```{r fig.width=30, fig.height=3}
+```{r fig.width=40, fig.height=3}
 main_title_1 <- ggplot() +
   annotate("text",
            x = 2,
            y = 2, 
-           label = "IS NUCLEAR ENERGY THE FUTURE?",
+           label = "NUCLEAR ENERGY PROMISES A BRIGHT FUTURE",
            family = "ko", 
            size = 40,
            color = "springgreen") +
@@ -62,7 +153,7 @@ main_title_1 <- ggplot() +
   theme(plot.background = element_rect(fill = "black", 
                                    color = "black"))
 
-main_title_1
+
 
 ggsave("main_title_1.png",
        plot = main_title_1,
@@ -79,17 +170,13 @@ main_title_2 <- ggplot() +
   annotate("text",
            x = 2,
            y = 2, 
-           label = "OR IS IT HOW WE KILL THE FUTURE?",
-           family = "ko", 
+           label = "But Behind Its Reactor Doors Hides Impending Disaster",
+           family = "ss", 
            size = 40,
-           color = "springgreen") +
+           color = "white") +
   theme_void() +
   theme(plot.background = element_rect(fill = "black", 
                                    color = "black"))
-
-main_title_2
-
-
 
 
 ggsave("main_title_2.png",
@@ -102,7 +189,6 @@ ggsave("main_title_2.png",
        )
 ```
 
-# Load data
 ```{r}
 chernobyl_exposure <-read.csv(here("data","chernobyl_exposure_distance.csv")) %>%
   clean_names()
@@ -114,26 +200,6 @@ nuclear_accidents <- read.csv(here("data","nuclear_accidents.csv") ) %>%
   clean_names() 
 ```
 
-
-# Create raster grob of INES scale
-```{r}
-# save power plant image path + warning sign path
-ines_path <- here("samples", "ines.png")
-
-# read as PNG
-ines <- readPNG(ines_path, native = FALSE)
-
-# turn to raster grob
-ines_grob <- rasterGrob(ines,
-                         width = unit(2.5, "cm"), 
-                         height = unit(2.5,"cm"),
-                         x = unit(0, "npc"),  
-                         y = unit(0, "npc"), 
-                         just = c("left", "center")) 
-  
-```
-
-# Wrangle Chernobyl exposure rate data 
 ```{r}
 # drop NA's 
 chernobyl_exposure <- chernobyl_exposure %>%
@@ -164,7 +230,6 @@ km_intervals$location <-c(-0.9,-0.9,-0.9,-0.9)
 
 ```
 
-# Wrangle Chernobyl water Cs data
 ```{r}
 deposition_conversion_factor <- 1000 # for kBq to Bq
 bq_to_pci <- 27.027 # Bq to pCi conversion factor
@@ -181,7 +246,6 @@ chernobyl_water <- chernobyl_water %>%
   filter(normalized > 50)
 ```
 
-# Wrangle nuclear accidents data
 ```{r}
 # filter to INES levels of interest 
 nuclear_accidents <- nuclear_accidents %>%
@@ -193,10 +257,8 @@ nuclear_accidents <- nuclear_accidents %>%
 # make "date" col into date object, set "orders" to all possible date formats in the df
 nuclear_accidents$date <- year(as.Date(parse_date_time(nuclear_accidents$date, orders =  c("m/d/Y","d/m/Y"))))
 
-
 ```
 
-# Prepare nuclear accidents timeline positions
 ```{r}
 
 # heights for milestones.
@@ -207,7 +269,6 @@ nuclear_accidents$directions <- c(1, -1)
 
 ```
 
-# Create timeline of nuclear accidents
 ```{r fig.width=15, fig.height=12}
 
 timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = description)) +
@@ -237,11 +298,11 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
 
   with_outer_glow( # nuclear accident 1 
   
-  geom_point(data = nuclear_accidents, aes(x = date[1], y = positions[1]), size = 30, color = "#ff0000"),
+  geom_point(data = nuclear_accidents, aes(x = date[1], y = positions[1]), size = 30, color = "#f80909"),
   
   sigma = 10,
   expand = 3,
-  colour = "#ff0000"
+  colour = "#f80909"
     
   ) +
   
@@ -249,11 +310,11 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
 
   with_outer_glow( # nuclear accident 2
   
-  geom_point(data = nuclear_accidents, aes(x = date[2], y = positions[2]), size = 37, color = "#ff4d00"),
+  geom_point(data = nuclear_accidents, aes(x = date[2], y = positions[2]), size = 37, color = "darkorange"),
   
   sigma = 10,
   expand = 3,
-  colour = "#ff4d00"
+  colour = "darkorange"
     
   ) +
   
@@ -309,11 +370,11 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
 
   with_outer_glow( # nuclear accident 7
   
-  geom_point(data = nuclear_accidents, aes(x = date[7], y = positions[7]), size = 35, color = "#ff4d00"),
+  geom_point(data = nuclear_accidents, aes(x = date[7], y = positions[7]), size = 35, color = "darkorange"),
   
   sigma = 10,
   expand = 3,
-  colour = "#ff4d00"
+  colour = "darkorange"
     
   ) +
   # glowing orb for each accident indicating INES level 
@@ -379,7 +440,7 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
   # geom_point(data = nuclear_accidents, aes(x = date, y = positions), size = 20) +
   
   labs(title = "At a Glance: A History of Nuclear Accidents",
-       subtitle = "The International Nuclear and Radiological Event Scale (INES) is a logarithmic scale with 7 levels. Levels 4-7 are reserved for high-impact accidents") +
+       subtitle = "Any engagement with nuclear technology carries incredibly high stakes, where the margin for error is razor-thin & the consequences far-reaching.") +
   
   
   theme(
@@ -402,7 +463,8 @@ timeline <- ggplot(nuclear_accidents, aes(x = date, y = positions, label = descr
         axis.line.x = element_blank(),
         panel.background = element_rect(fill = "black",
                                         color = "black"),
-        plot.background = element_rect(fill = "black"),
+        plot.background = element_rect(fill = "black",
+                                       color = "black"),
         plot.margin = margin(t = 70, r = 100, b = 70, l = 100, unit = "pt")) +
   
   
@@ -421,7 +483,6 @@ timeline
 
 ```
 
-# Create raster grobs 
 ```{r}
 # save power plant image path + warning sign path
 plant_path <- here("samples", "design.png")
@@ -450,7 +511,6 @@ warning_grob <- rasterGrob(warning,
                     
 ```
 
-# Create Exposure Data Viz
 ```{r}
 # make main plot
 exposure<- ggplot(chernobyl_exposure, aes(
@@ -536,8 +596,6 @@ exposure<- ggplot(chernobyl_exposure, aes(
 
 ```
 
-
-# Add Annotations in Separate Code Chunk
 ```{r fig.width=25, fig.height=10}
 exposure_annotated <- exposure + 
   
@@ -681,7 +739,6 @@ exposure_annotated <- exposure +
   family = "ko",
   size = 6)
 
-exposure_annotated
 
 ggsave("exposure_annotated.png",
        plot = exposure_annotated,
@@ -691,10 +748,10 @@ ggsave("exposure_annotated.png",
        units = "cm",
        dpi = 300
        )
+
+exposure_annotated
 ```
 
-
-# Make wave data for water data viz 
 ```{r}
 wave_data <- data.frame(
   x = seq(0, 15, length.out = 100),
@@ -709,7 +766,6 @@ wave_segments <- wave_data %>%
   filter(!is.na(xend))
 ```
 
-# Create water contamination data viz 
 ```{r fig.width= 16, fig.height=9}
 
 water <- ggplot(chernobyl_water, aes(x = distance_from_cnpp_km, y = normalized)) +
@@ -835,28 +891,3 @@ ggsave("water.png",
        dpi = 300
        )
 ```
-
-# Create base plot
-```{r}
-
-plot_base <- ggplot() +
-
-  labs(
-    title = "UFO Sightings",
-    subtitle = "Summary of over 88k reported sightings across the US",
-    caption = "caasdf",
-    ) +
-  theme_void() +
-  theme(plot.background = element_rect(fill = "black")) 
-
-ggsave("plot_base.png",
-       plot = plot_base,
-       device = "png",
-       width = 25, 
-       height = 12,
-       units = "cm",
-       dpi = 300
-       )
-
-```
-
