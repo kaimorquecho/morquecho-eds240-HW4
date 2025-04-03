@@ -92,7 +92,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><span style="springgreen">I’ve been learning about nuclear disasters since I was 7, an interest I inherited from my brother. I remember the day he showed me what Chernobyl was and the many hours I spent that day googling pictures and facts about the accident. In 2011 we stayed up late, watching the news coverage of the Fukushima nuclear accident in Japan. It had been predicted that a meltdown was unavoidable and a hydrogen explosion imminent and we watched as the first explosion occurred. I’m fascinated with nuclear energy because as humans we believe that we can tame the fission chain reaction, yet atomic energy has proven to us time and again that as long as humans are the ones running the show, accidents are only a matter of time. I figured I’d combine this interest of mine with my newly learned data viz skills to create an infographic.</span></p>
+<p><span style="springgreen">I’ve been learning about nuclear disasters since I was 7, an interest I inherited from my brother. I remember the day he showed me what Chernobyl was and the many hours I spent that day googling pictures and facts about the accident. In 2011 we stayed up late, watching the news coverage of the Fukushima nuclear accident in Japan. It had been predicted that a meltdown was unavoidable and a hydrogen explosion imminent and we watched as the first explosion occurred. I’m fascinated with nuclear energy because as humans we believe that we can tame the fission chain reaction, yet atomic energy has proven to us time and again that as long as humans are the ones running the show, accidents are only a matter of time. I figured I’d combine this interest of mine with my newly learned data viz skills to create an infographic</span> that illustrates the severity of just <strong>ONE</strong> nuclear disaster.</p>
 <section id="the-question" class="level4">
 <h4 class="anchored" data-anchor-id="the-question"><strong>The Question</strong></h4>
 <p>The main question I explore in this data viz project is if the benefits and advantages of nuclear energy are worth the catastrophic consequences of nuclear accidents. Although nuclear accidents are statistically rare, the potential for human error in operating nuclear power plants makes them a question of when, not if.</p>
@@ -127,50 +127,56 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-elements" class="level4">
 <h4 class="anchored" data-anchor-id="the-elements"><strong>The Elements</strong></h4>
-<p><em>Graphic Forms</em></p>
+<p><strong>Graphic Forms</strong></p>
 <p>I chose to move away from common graphic forms for the first two data viz in my infographic, white the third data viz was made using a common graphic form.</p>
 <ul>
 <li><p>Data Viz 1: A timeline made using ggplot’s geom_segment, geom_point, geom_label, and geom_text to show nuclear accidents INES level 4 or higher over time.</p></li>
 <li><p>Data Viz 2: A color bar to show radiation exposure by distance to the Chernobyl NPP. The bar was made primarily using geom_tile, geom_segment and geom_labels.</p></li>
 <li><p>Data Viz 3: A graph showing 3 lakes near the NPP, normalized by the EPA’s annual Cs-137 water contamination levels where the x-axis is distance to the NPP and the y-axis is the Cs-137 concentration normalized.</p></li>
 </ul>
-<p><em>Text</em></p>
+<p><strong>Text</strong></p>
 <p>I used text to point out the most important takeaways from each data viz and to provide context to each graph in the subtitle. Axis text was largely replaced by the labels and annotations I added to each graph to make the viewer consume only the most important data points.</p>
-<p><em>Themes</em></p>
+<p><strong>Themes</strong></p>
 <p>I intentionally modified most non-data plot elements to be visually pleasing and to appeal to viewers’ associations of neon colors, especially green, to radioactivity. I also incorporated glow to several plot elements - I made the timeline, data points and color bar outer borders glow using the ggfx package.</p>
-<p><em>Colors</em></p>
+<p><strong>Colors</strong></p>
 <p>I chose three main colors to apply to all my data viz and infographic - deep pink, spring green, and deep sky blue. These colors are bright and neon-like and are meant to maintain the theme of radioactive glow. They also worked well with the effects of the ggfx package’s function “with_outer_glow( )”. Other than these two colors, all other elements and text were kept in black and white. I used black to create a sense of darkness and doom, as well as a futuristic-to-80s feel, in the infographic.</p>
+<p><strong>Typography</strong></p>
+<p>I selected Google fonts “Keania One” and “Smooch Sans” for the text.</p>
 <ul>
-<li><p>typography</p></li>
-<li><p>general design (e.g.&nbsp;group order, spacing, text orientation, data-ink ratio, creating a visual hierarchy, avoiding information overload)</p></li>
-<li><p>contextualizing your data</p></li>
-<li><p>centering your primary message</p></li>
-<li><p>considering accessibility (e.g.&nbsp;colorblind-friendly palettes / contrast, alt text)</p></li>
-<li><p>applying a DEI lens to your design, as appropriate (e.g.&nbsp;considering the people / communities / places represented in your data, consider how you frame your questions / issue)</p></li>
+<li><p><strong>Smooch Sans</strong> for main text / descriptions / plot and infographic labels</p>
+<ul>
+<li>Simple, clean, less busy</li>
+</ul></li>
+<li><p><strong>Keania One</strong> for main titles or takeaways.</p>
+<ul>
+<li><p>Bold, futuristic font gives the infographic a tech-y, energy-of-the-future feel.</p></li>
+<li><p>Grabs attention</p></li>
+</ul></li>
+</ul>
+<p><strong>General Design</strong></p>
+<p>I use visual hierarchy to wide the viewer <strong>down</strong> the infographic, going from big picture to specific example.</p>
+<ol type="1">
+<li><p>The first data viz is a timeline of the history of nuclear disasters.</p></li>
+<li><p>Then, I zoom in on the Chernobyl Nuclear Disaster and provide context for the event.</p></li>
+<li><p>The last two data viz display Chernobyl-specific facts that underscore the severity of the accident.</p></li>
+</ol>
+<p>To avoid information overload, I filtered historical nuclear accidents down to those categorized as “accidents” (INES levels 4-7) and left “incidents” (INES levels 1-3) out due to their limited consequences on humans and the environment.</p>
+<p>In the Chernobyl-specific data viz I labeled data points to tell a story, instead of displaying all the data. For example, although I had more than 300 radiation exposure data observations, I labeled data points only at meaningful distances away (in Km) from the nuclear power plant.</p>
+<p><strong>Contextualizing Data</strong></p>
+<p>I contextualized variables in the 3 data viz to make the infographic friendly to a wider audience, and I achieved this by:</p>
+<ul>
+<li><p>Including a legend for INES levels and their definitions,</p></li>
+<li><p>Contextualizing data by using everyday comparisons:</p>
+<ul>
+<li><p>Instead of radiation dosages in mGy (milligray) within x kilometers from the nuclear power plant, I showed radiation dosages in number of chest-Xrays within x kilometers from the power plant.</p></li>
+<li><p>Instead of Cesium-137 concentration in pCi/L (picocurie per liter), I showed Cesium-137 concentration in lakes relative to the EPA’s established maximum Cesium-137 consumption (annual).</p></li>
+</ul></li>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="1440"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="2400"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="1536"></p>
+<p><img src="plots/Nuclear_Energy_Infographic.png" class="img-fluid figure-img" width="1944"></p>
 </figure>
 </div>
 </div>
