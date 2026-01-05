@@ -179,7 +179,7 @@ Bold, futuristic font gives the infographic a tech-y, energy-of-the-future feel.
 
 Grabs attention
 
-General Design
+### General Design
 
 I use visual hierarchy to wide the viewer down the infographic, going from big picture to specific example.
 
