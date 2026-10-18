@@ -147,7 +147,7 @@ I present data on the water chemistry of three lakes near the Chernobyl Nuclear 
 
 I chose to move away from common graphic forms for the first two data viz in my infographic, white the third data viz was made using a common graphic form.
 
-Data Viz 1: A timeline made using ggplot's geom_segment, geom_point, geom_label, and geom_text to show nuclear accidents INES level 4 or higher over time.
+Data Viz 1: A timeline made using `ggplot`'s `geom_segment`, `geom_point`, `geom_label`, and `geom_text `to show nuclear accidents INES level 4 or higher over time.
 
 Data Viz 2: A color bar to show radiation exposure by distance to the Chernobyl NPP. The bar was made primarily using geom_tile, geom_segment and geom_labels.
 
